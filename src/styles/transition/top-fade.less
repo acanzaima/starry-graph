@@ -1,0 +1,14 @@
+/* 渐变 */
+.top-fade-enter-active {
+  transition: all 0.3s cubic-bezier(0.05, 0.66, 0.54, 0.13);
+}
+
+.top-fade-leave-active {
+  transition: all 0.35s cubic-bezier(0.05, 0.66, 0.54, 0.13);
+}
+
+.top-fade-enter-from,
+.top-fade-leave-to {
+  opacity: 0;
+  transform: translateY(10vh);
+}

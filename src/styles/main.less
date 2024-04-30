@@ -1,0 +1,80 @@
+@import './base.css';
+@import './transition/index.less';
+@import './iconfont/iconfont.css';
+
+/* 滚动条 */
+// 滑块颜色
+@scrollbar-thumb-color: #cfcfcf;
+// 滑块 hover 颜色
+@scrollbar-thumb-hover-color: #b6b6b6;
+// 滑块大小
+@scrollbar-thumb-size: 12px;
+// 滑块边框大小
+@scrollbar-thumb-border-size: 2px;
+// 小型滚动条滑块大小
+@scrollbar-mini-thumb-size: 8px;
+// 轨道颜色
+@scrollbar-track-color: transparent;
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  font-weight: normal;
+  box-sizing: border-box;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  ul {
+    margin: 0;
+    padding: 0;
+    transition: color 0.3s;
+    &:hover {
+      color: var(--color-text-hover);
+    }
+  }
+  ul {
+    list-style: none;
+  }
+}
+
+a {
+  color: var(--color-text);
+  transition: color 0.3s;
+  svg {
+    fill: currentColor;
+  }
+  &:hover {
+    color: var(--color-text-hover);
+  }
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: @scrollbar-thumb-size;
+  height: @scrollbar-thumb-size;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: (@scrollbar-thumb-size / 2);
+  border: @scrollbar-thumb-border-size solid transparent;
+  background-color: @scrollbar-thumb-color;
+  background-clip: padding-box;
+
+  &:hover {
+    background-color: @scrollbar-thumb-hover-color;
+  }
+}
+::-webkit-scrollbar-track {
+  background: @scrollbar-track-color;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+// 兼容火狐浏览器
+* {
+  scrollbar-width: thin;
+  scrollbar-color: @scrollbar-thumb-color transparent;
+}

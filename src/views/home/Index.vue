@@ -1,16 +1,18 @@
 <script setup>
 import { ref, inject, onMounted, onBeforeUnmount, provide } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import queryUtils from '@/cypher/index';
 import { transNodes, transRelations } from '@/utils/index';
 import { SYSTEM_NODE_ID } from '@/config/setting';
 import SearchBtn from './components/tools/SearchBtn.vue';
 import ThemeSwitch from './components/tools/ThemeSwitch.vue';
+import MockData from './components/tools/MockData.vue';
 import GitLink from './components/tools/GitLink.vue';
 import ToolBox from './components/tools/ToolBox.vue';
 import SearchInput from './components/feature/SearchInput.vue';
 import OperaModal from './components/feature/OperaModal.vue';
 import DrawBoard from './components/graph/DrawBoard.vue';
+import { operaAddNode, operaCreateRelation } from '@/cypher/index';
 
 /* neo4j 驱动 */
 const driver = inject('driver');
@@ -153,6 +155,72 @@ function queryNetwork(id) {
   });
 }
 
+// 模拟添加数据
+const mockCount = ref(100);
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+const mockNodes = async () => {
+  for (let i = 1; i <= mockCount.value; i++) {
+    const nodes = [
+      { label: '标签', value: ['模拟'], immutableAttr: true, isLabel: true },
+      { label: '名称', value: `模拟节点${i}`, immutableAttr: true, isLabel: true }
+    ];
+    driver
+      .executeQuery(operaAddNode(nodes))
+      .then(() => {
+        ElMessage(`节点${i}创建成功！`);
+      })
+      .catch((e) => ElMessage(e));
+    await sleep(200);
+  }
+};
+const mockEdges = async () => {
+  let fromId = 0;
+  let step = Math.floor(mockCount.value / 10);
+  while (fromId < mockCount.value) {
+    for (let i = fromId + 1; i <= fromId + step; i++) {
+      let info = {
+        from: fromId,
+        target: i,
+        relation: '模拟关系',
+        comment: '模拟关系说明'
+      };
+      driver
+        .executeQuery(operaCreateRelation(info))
+        .then(() => {
+          ElMessage(`关系${fromId}→${i}创建成功！`);
+        })
+        .catch((e) => {
+          ElMessage(e);
+        });
+      await sleep(200);
+    }
+    fromId += step + 1;
+  }
+};
+
+const simulateData = () => {
+  ElMessageBox.prompt('请输入你要模拟的节点数量', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    inputPattern: /[0-9]+/,
+    inputErrorMessage: '请输入数字'
+  })
+    .then(async ({ value }) => {
+      mockCount.value = parseInt(value);
+      await mockNodes();
+      await mockEdges();
+      reload();
+    })
+    .catch(() => {
+      this.$message({
+        type: 'info',
+        message: '取消输入'
+      });
+    });
+};
+
 /* 注入当前操作node */
 provide('focusNode', focusNode);
 </script>
@@ -163,6 +231,7 @@ provide('focusNode', focusNode);
       <search-btn class="opera-item" @click="showSearch = !showSearch" />
       <tool-box class="opera-item" @click="showOperaModal" />
       <theme-switch class="opera-item" />
+      <mock-data class="opera-item" @click="simulateData" />
       <git-link class="opera-item" />
     </div>
     <draw-board
